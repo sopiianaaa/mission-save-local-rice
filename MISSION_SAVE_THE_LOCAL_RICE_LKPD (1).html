@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MISSION: SAVE THE LOCAL RICE</title>
+<style>
+:root{
+  --green:#2f6b45; --green2:#78a96b; --light:#f4f0df; --cream:#fffaf0;
+  --white:#fff; --dark:#20372a; --muted:#66756b; --red:#b85c4b;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#eef4e9,#fffaf0);color:var(--dark)}
+.app{max-width:980px;margin:auto;min-height:100vh;padding:22px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.logo{font-weight:800;letter-spacing:.5px}.score{background:#fff;border:2px solid #dce6d8;border-radius:18px;padding:8px 14px;font-weight:700}
+.progress-wrap{height:12px;background:#dfe9dc;border-radius:99px;overflow:hidden;margin-bottom:22px}
+.progress{height:100%;width:0;background:var(--green2);transition:.4s}
+.page{display:none;animation:fade .35s ease}.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.hero,.panel{background:rgba(255,255,255,.92);border:1px solid #dce6d8;border-radius:28px;box-shadow:0 12px 35px rgba(47,107,69,.10);padding:30px}
+.hero{text-align:center;padding:55px 30px}
+.badge{display:inline-block;background:#e6f0df;color:var(--green);padding:7px 13px;border-radius:99px;font-weight:700;font-size:13px}
+h1{font-size:clamp(34px,7vw,64px);margin:18px 0 10px;line-height:1.02}
+h2{font-size:30px;margin:10px 0}.subtitle{color:var(--muted);font-size:17px;line-height:1.55}
+button{border:0;border-radius:16px;padding:13px 20px;font-weight:800;cursor:pointer;background:var(--green);color:white;font-size:15px;transition:.2s}
+button:hover{transform:translateY(-2px);filter:brightness(1.05)}
+button.secondary{background:#e9f0e5;color:var(--green)}
+button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.case{background:var(--cream);border-left:6px solid var(--green2);padding:20px;border-radius:18px;line-height:1.7;margin:20px 0}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{background:#fff;border:2px solid #dfe8dc;border-radius:20px;padding:20px;cursor:pointer;min-height:130px;transition:.2s}
+.card:hover{transform:translateY(-3px);border-color:var(--green2)}
+.card.open{background:#f3f8ef;border-color:var(--green2)}
+.card .icon{font-size:32px}.card strong{display:block;margin:8px 0}
+.info{font-size:14px;color:#536359;line-height:1.45}
+.question{margin-top:24px}.question label{display:block;font-weight:800;margin-bottom:8px}
+textarea{width:100%;min-height:110px;border:2px solid #dce6d8;border-radius:16px;padding:14px;font:inherit;resize:vertical;background:#fff}
+textarea:focus{outline:3px solid #dfeedd;border-color:var(--green2)}
+.drag-area{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px}
+.dropzone{background:#f7f9f5;border:2px dashed #b9cbb2;border-radius:20px;padding:16px;min-height:190px}
+.dropzone h3{margin-top:0}.dropzone.over{background:#edf6e9;border-color:var(--green)}
+.draggables{display:flex;flex-direction:column;gap:10px}
+.dragcard{background:#fff;border:2px solid #dce6d8;border-radius:14px;padding:13px;cursor:grab;font-weight:700}
+.dragcard.selected{border-color:var(--green2);background:#f1f7ed}
+.feedback{margin-top:16px;padding:12px 15px;border-radius:14px;display:none;font-weight:700}
+.feedback.show{display:block;background:#edf6e9;color:var(--green)}
+.tech{grid-template-columns:repeat(2,1fr);display:grid;gap:18px;margin-top:20px}
+.tech .card{min-height:190px}
+.choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0}
+.choice{padding:22px;border:3px solid #dfe8dc;border-radius:20px;background:#fff;cursor:pointer;text-align:center;font-weight:800}
+.choice.selected{border-color:var(--green);background:#eef6ea}
+.result{background:#fff;border:2px solid #dce6d8;border-radius:22px;padding:24px;margin-top:20px;text-align:center}
+.big-score{font-size:48px;font-weight:900;color:var(--green)}
+.hidden{display:none!important}
+.small{font-size:13px;color:var(--muted)}
+@media(max-width:720px){
+ .cards,.tech,.choice-grid,.drag-area{grid-template-columns:1fr}
+ .hero,.panel{padding:22px}.app{padding:12px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="logo">🌱 MISSION: SAVE THE LOCAL RICE</div>
+    <div class="score">⭐ Skor: <span id="score">0</span>/100</div>
+  </div>
+  <div class="progress-wrap"><div class="progress" id="progress"></div></div>
+
+  <section class="page active" id="p1">
+    <div class="hero">
+      <span class="badge">INVESTIGATION • INDIVIDU</span>
+      <h1>🌱 SAVE THE<br>LOCAL RICE</h1>
+      <p class="subtitle">Desa Sukamaju sedang menghadapi masalah pada varietas padi lokal.<br>Temukan petunjuknya dan tentukan langkah yang paling masuk akal.</p>
+      <p><b>Misi 1/3</b></p>
+      <button onclick="go(2)">MULAI MISI →</button>
+    </div>
+  </section>
+
+  <section class="page" id="p2">
+    <div class="panel">
+      <span class="badge">MISI 1 • CARI PETUNJUK 🔎</span>
+      <h2>Apa yang terjadi di Desa Sukamaju?</h2>
+      <div class="case">
+        Desa Sukamaju memiliki beberapa varietas padi lokal.<br>
+        <b>Padi A</b> tahan kekeringan. <b>Padi B</b> tahan penyakit. <b>Padi C</b> memiliki rasa yang disukai masyarakat.<br><br>
+        Namun, petani mulai lebih banyak menanam satu varietas baru karena hasil panennya lebih tinggi dan lebih cepat dipanen.<br><br>
+        Beberapa tahun kemudian, padi A, B, dan C semakin jarang ditanam.
+      </div>
+      <p><b>Klik semua kartu untuk membuka petunjuk.</b></p>
+      <div class="cards" id="clues">
+        <div class="card clue" onclick="openClue(this,20)">
+          <div class="icon">🌾</div><strong>VARIETAS LOKAL</strong>
+          <div class="info hidden">Padi A, B, dan C merupakan varietas yang telah ada dan memiliki ciri yang berbeda.</div>
+        </div>
+        <div class="card clue" onclick="openClue(this,0)">
+          <div class="icon">🚜</div><strong>VARIETAS BARU</strong>
+          <div class="info hidden">Varietas baru dipilih karena hasil panen lebih tinggi dan waktu panennya lebih cepat.</div>
+        </div>
+        <div class="card clue" onclick="openClue(this,0)">
+          <div class="icon">📉</div><strong>PERUBAHAN</strong>
+          <div class="info hidden">Setelah beberapa tahun, padi A, B, dan C semakin jarang ditanam.</div>
+        </div>
+        <div class="card clue" onclick="openClue(this,0)">
+          <div class="icon">🧬</div><strong>SIFAT UNGGUL</strong>
+          <div class="info hidden">Varietas lokal memiliki sifat yang berbeda, seperti tahan kekeringan, tahan penyakit, dan rasa yang disukai.</div>
+        </div>
+      </div>
+      <div class="question">
+        <label>🕵️ Dari petunjuk yang kamu temukan, apa masalah yang sedang terjadi di Desa Sukamaju?</label>
+        <textarea id="answer1" placeholder="Tuliskan hasil penyelidikanmu..."></textarea>
+      </div>
+      <div class="actions"><button id="next2" disabled onclick="go(3)">LANJUT KE MISI 2 →</button></div>
+    </div>
+  </section>
+
+  <section class="page" id="p3">
+    <div class="panel">
+      <span class="badge">MISI 2 • HUBUNGKAN PETUNJUK 🧩</span>
+      <h2>Susun hubungan antarpetunjuk</h2>
+      <p class="subtitle">Seret setiap kartu ke kotak yang paling sesuai. Di ponsel, ketuk kartu lalu ketuk kotak tujuan.</p>
+      <div class="drag-area">
+        <div>
+          <h3>🗂️ Kartu petunjuk</h3>
+          <div class="draggables" id="dragSource">
+            <div class="dragcard" draggable="true" data-answer="mengapa">Petani memilih varietas baru</div>
+            <div class="dragcard" draggable="true" data-answer="terjadi">Varietas lokal semakin jarang ditanam</div>
+            <div class="dragcard" draggable="true" data-answer="risiko">Beberapa sifat unggul lokal dapat hilang</div>
+            <div class="dragcard" draggable="true" data-answer="risiko">Jumlah varietas semakin sedikit</div>
+          </div>
+        </div>
+        <div>
+          <div class="dropzone" data-zone="terjadi"><h3>APA YANG TERJADI?</h3><p class="small">Letakkan petunjuk di sini</p></div>
+          <div class="dropzone" data-zone="mengapa"><h3>MENGAPA TERJADI?</h3><p class="small">Letakkan petunjuk di sini</p></div>
+          <div class="dropzone" data-zone="risiko"><h3>APA RISIKONYA?</h3><p class="small">Letakkan petunjuk di sini</p></div>
+        </div>
+      </div>
+      <div class="feedback" id="dragFeedback"></div>
+      <div class="actions"><button id="next3" disabled onclick="go(4)">CARI CARA MENYELAMATKAN →</button></div>
+    </div>
+  </section>
+
+  <section class="page" id="p4">
+    <div class="panel">
+      <span class="badge">MISI 3 • BUKA TEKNOLOGINYA 🧬</span>
+      <h2>Buka dua kartu teknologi</h2>
+      <p class="subtitle">Baca petunjuknya. Gunakan informasi ini untuk menentukan strategi pada misi terakhir.</p>
+      <div class="tech">
+        <div class="card" onclick="toggleTech(this)">
+          <div class="icon">🏦</div><strong>BANK GEN</strong>
+          <div class="info hidden">Benih atau materi genetik dapat disimpan agar tetap tersedia dan dapat digunakan kembali ketika diperlukan.</div>
+          <span class="small">Klik untuk membuka petunjuk</span>
+        </div>
+        <div class="card" onclick="toggleTech(this)">
+          <div class="icon">🌱</div><strong>KULTUR JARINGAN</strong>
+          <div class="info hidden">Bagian tanaman dapat digunakan untuk memperbanyak tanaman dalam kondisi steril secara <i>in vitro</i>.</div>
+          <span class="small">Klik untuk membuka petunjuk</span>
+        </div>
+      </div>
+      <div class="actions"><button id="next4" disabled onclick="go(5)">LANJUT KE FINAL MISSION →</button></div>
+    </div>
+  </section>
+
+  <section class="page" id="p5">
+    <div class="panel">
+      <span class="badge">FINAL MISSION 🎯</span>
+      <h2>Selamatkan varietas lokal!</h2>
+      <div class="case">Varietas padi lokal di Desa Sukamaju semakin jarang ditemukan.<br>Kamu menjadi peneliti yang harus membantu menjaga varietas tersebut.</div>
+      <p><b>Pilih strategi berdasarkan seluruh petunjuk yang sudah kamu temukan.</b></p>
+      <div class="choice-grid">
+        <div class="choice" data-choice="bank" onclick="choose(this)">🏦<br>BANK GEN</div>
+        <div class="choice" data-choice="kultur" onclick="choose(this)">🌱<br>KULTUR JARINGAN</div>
+        <div class="choice" data-choice="keduanya" onclick="choose(this)">🧬<br>KEDUANYA</div>
+      </div>
+      <div class="question">
+        <label>Bagaimana cara yang kamu pilih dapat membantu?</label>
+        <textarea id="answer2" placeholder="Jelaskan dengan bahasamu sendiri..."></textarea>
+      </div>
+      <div class="question">
+        <label>Tulis alasanmu berdasarkan petunjuk yang sudah kamu temukan.</label>
+        <textarea id="answer3" placeholder="Gunakan hubungan antara kasus dan fungsi teknologi..."></textarea>
+      </div>
+      <div class="actions"><button id="finish" disabled onclick="finishMission()">SELESAIKAN MISI 🏆</button></div>
+      <div class="result hidden" id="result">
+        <div class="big-score"><span id="finalScore">0</span>/100</div>
+        <h2>🏆 MISSION COMPLETE!</h2>
+        <p id="feedbackFinal"></p>
+        <p class="small">Skor: petunjuk 20 • hubungan 30 • strategi 20 • alasan 30</p>
+        <button class="secondary" onclick="location.reload()">ULANGI MISI</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+let score=0, opened=0, techOpened=0, chosen=null, placed=0, dragScore=0;
+const $=id=>document.getElementById(id);
+function setScore(n){score=Math.max(score,n);$('score').textContent=score}
+function go(n){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ $('p'+n).classList.add('active');
+ $('progress').style.width=((n-1)/4*100)+'%';
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function openClue(el,pts){
+ if(el.classList.contains('open'))return;
+ el.classList.add('open'); el.querySelector('.info').classList.remove('hidden');
+ opened++;
+ if(opened===4){setScore(20);$('next2').disabled=false}
+}
+$('answer1').addEventListener('input',checkFinalFields);
+function checkFinalFields(){
+ $('finish').disabled=!(chosen && $('answer2').value.trim() && $('answer3').value.trim());
+}
+document.querySelectorAll('.dragcard').forEach(card=>{
+ card.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain',''));
+ card.addEventListener('click',()=>{
+   document.querySelectorAll('.dragcard').forEach(c=>c.classList.remove('selected'));
+   card.classList.add('selected'); window.selectedCard=card;
+ });
+});
+document.querySelectorAll('.dropzone').forEach(zone=>{
+ zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('over')});
+ zone.addEventListener('dragleave',()=>zone.classList.remove('over'));
+ zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('over');placeCard(window.draggingCard||null,zone)});
+ zone.addEventListener('click',()=>{if(window.selectedCard)placeCard(window.selectedCard,zone)});
+});
+document.querySelectorAll('.dragcard').forEach(c=>{
+ c.addEventListener('dragstart',()=>window.draggingCard=c);
+ c.addEventListener('dragend',()=>window.draggingCard=null);
+});
+function placeCard(card,zone){
+ if(!card || card.parentElement===zone)return;
+ const old=card.parentElement;
+ const correct=card.dataset.answer===zone.dataset.zone;
+ zone.appendChild(card); card.classList.remove('selected');
+ placed++;
+ const fb=$('dragFeedback');fb.classList.add('show');
+ if(correct){fb.textContent='Petunjuk cocok! 🔎';dragScore+=7.5}
+ else {fb.textContent='Coba periksa kembali hubungan antarpetunjuk.';dragScore-=2.5}
+ if(placed>=4){
+   dragScore=Math.max(0,Math.round(dragScore));
+   if(dragScore>=30)setScore(Math.max(score,50));
+   else setScore(Math.max(score,20));
+   $('next3').disabled=false;
+ }
+}
+function toggleTech(card){
+ if(card.classList.contains('open'))return;
+ card.classList.add('open');card.querySelector('.info').classList.remove('hidden');
+ card.querySelector('.small').textContent='Petunjuk terbuka ✓';
+ techOpened++;
+ if(techOpened===2){setScore(Math.max(score,50));$('next4').disabled=false}
+}
+function choose(el){
+ document.querySelectorAll('.choice').forEach(c=>c.classList.remove('selected'));
+ el.classList.add('selected');chosen=el.dataset.choice;
+ $('finish').disabled=false;checkFinalFields();
+}
+$('answer2').addEventListener('input',checkFinalFields);
+$('answer3').addEventListener('input',checkFinalFields);
+function finishMission(){
+ let a=($('answer2').value+' '+$('answer3').value).toLowerCase();
+ let bank=/simpan|benih|materi genetik|tersedia|digunakan kembali/.test(a);
+ let kultur=/memperbanyak|perbanyak|steril|in vitro|bagian tanaman/.test(a);
+ let reason=false, msg='';
+ if(chosen==='bank' && bank){score=Math.max(score,100);msg='Alasanmu sesuai dengan informasi yang kamu temukan.'}
+ else if(chosen==='kultur' && kultur){score=Math.max(score,100);msg='Alasanmu sesuai dengan informasi yang kamu temukan.'}
+ else if(chosen==='keduanya' && bank && kultur){score=100;msg='Kamu berhasil menghubungkan dua cara berdasarkan kebutuhan kasus.'}
+ else {score=Math.max(score,70);msg='Coba kembali ke petunjuk teknologi dan periksa fungsinya.'}
+ $('finalScore').textContent=score;$('score').textContent=score;$('feedbackFinal').textContent=msg;
+ $('result').classList.remove('hidden');$('finish').disabled=true;$('progress').style.width='100%';
+}
+</script>
+</body>
+</html>
